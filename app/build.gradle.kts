@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -70,12 +71,28 @@ dependencies {
 
     // DI
     implementation(libs.koin.android)
+    implementation(libs.koin.core)
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.moshi)
+    ksp(libs.moshi.codegen)
 
     // Room
     implementation(libs.room)
+    implementation(libs.room.ktx)
+    implementation(libs.room.paging)
     ksp(libs.room.compiler)
 
     // Retrofit
     implementation(libs.retrofit)
     implementation(libs.retrofit.converters.moshi)
+    implementation(libs.okhttp.logging.interceptor)
+
+    // Paging
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
+    implementation(libs.androidx.lifecycle.compose)
+    implementation(libs.androidx.paging.common)
+
+    // Coil
+    implementation(libs.coil)
 }

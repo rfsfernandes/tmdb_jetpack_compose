@@ -1,10 +1,8 @@
-package xyz.rfsfernandes.tmdbdemo.data.local.model
+package xyz.rfsfernandes.tmdbdemo.domain.model
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import xyz.rfsfernandes.tmdbdemo.data.local.model.MovieHomeType
 
-@Entity(primaryKeys = ["movieId","language"])
-data class MovieEntity(
+data class MovieDataModel(
     val movieId: Int,
     val title: String,
     val originalTitle: String,
