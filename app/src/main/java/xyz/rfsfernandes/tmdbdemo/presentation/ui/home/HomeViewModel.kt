@@ -22,37 +22,10 @@ import xyz.rfsfernandes.tmdbdemo.presentation.ui.home.viewstate.HomeViewState
 import java.io.IOException
 
 class HomeViewModel(
-    private val getMovieGenresUseCase: GetMovieGenresUseCase,
     private val getMoviesUseCase: GetMoviesUseCase,
 ) : ViewModel() {
     private val _viewState: MutableStateFlow<HomeViewState> = MutableStateFlow(HomeViewState())
     val viewState: StateFlow<HomeViewState> = _viewState
-
-    fun getMovieGenres(language: String) {
-        viewModelScope.launch {
-            _viewState.update {
-                _viewState.value.copy(
-                    isLoading = true
-                )
-            }
-            getMovieGenresUseCase(language).collect {
-                _viewState.value = when (it) {
-                    is Resource.Default<List<GenreDataModel>> -> _viewState.value
-                    is Resource.Error<List<GenreDataModel>> -> _viewState.value.copy(
-                        error = it.message
-                    )
-
-                    is Resource.NetworkNotAvailable<List<GenreDataModel>> -> _viewState.value.copy(
-                        error = "Network not available"
-                    )
-
-                    is Resource.Success<List<GenreDataModel>> -> _viewState.value.copy(
-                        isLoading = false, movieGenres = it.data, error = ""
-                    )
-                }
-            }
-        }
-    }
 
     fun getMovies(language: String) {
         viewModelScope.launch {
@@ -62,7 +35,8 @@ class HomeViewModel(
                 MovieHomeType.NOW_PLAYING to getMoviesUseCase(MovieHomeType.NOW_PLAYING, language).cachedIn(viewModelScope),
                 MovieHomeType.POPULAR to getMoviesUseCase(MovieHomeType.POPULAR, language).cachedIn(viewModelScope),
                 MovieHomeType.TOP_RATED to getMoviesUseCase(MovieHomeType.TOP_RATED, language).cachedIn(viewModelScope),
-                MovieHomeType.UPCOMING to getMoviesUseCase(MovieHomeType.UPCOMING, language).cachedIn(viewModelScope)
+                MovieHomeType.UPCOMING to getMoviesUseCase(MovieHomeType.UPCOMING, language).cachedIn(viewModelScope),
+                MovieHomeType.FEATURED to getMoviesUseCase(MovieHomeType.FEATURED, language).cachedIn(viewModelScope),
             )
 
             moviesList.forEach { (homeViewType, moviesFlow) ->
@@ -114,6 +88,12 @@ class HomeViewModel(
                                                 isLoading = false,
                                                 error = null,
                                                 upcomingMovies = moviesFlow
+                                            )
+
+                                            MovieHomeType.FEATURED -> currentState.copy(
+                                                isLoading = false,
+                                                error = null,
+                                                featuredMovies = moviesFlow
                                             )
                                         }
                                     }

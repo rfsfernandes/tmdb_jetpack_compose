@@ -15,13 +15,10 @@ fun NavigationGraph() {
     val navigationController = rememberNavController()
 //    val currentDestination by navigationController.currentBackStackEntryAsState()
 
-    Scaffold { padding ->
-        NavHost(
-            navController = navigationController,
-            startDestination = CoreNavigationRoutes.HomeScreen.route,
-            modifier = Modifier.padding(padding)
-        ) {
-            composable(CoreNavigationRoutes.HomeScreen.route) { HomeScreen() }
-        }
+    NavHost(
+        navController = navigationController,
+        startDestination = CoreNavigationRoutes.HomeScreen.route,
+    ) {
+        composable(CoreNavigationRoutes.HomeScreen.route) { HomeScreen() }
     }
 }

@@ -101,7 +101,11 @@ class RepositoryImpl(
                 language = language
             ),
         ) {
-            tmdbDAO.getMoviesPaged(language, homeType.name)
+            if (homeType == MovieHomeType.FEATURED) {
+                tmdbDAO.getFeaturedMovies(MovieHomeType.FEATURED.name)
+            } else {
+                tmdbDAO.getMoviesPaged(language, homeType.name)
+            }
         }.flow
     }
 

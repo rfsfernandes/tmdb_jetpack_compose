@@ -37,4 +37,9 @@ interface TmdbService {
         @Query("language") language: String?,
         @Query("page") page: Int?,
     ): Response<MovieResponse>
+
+    @GET("discover/movie?include_adult=true&include_video=false&language=en-US&page=1&sort_by=vote_count.desc")
+    suspend fun getFeaturedMovies(
+        @Query("language") language: String?,
+    ): Response<MovieResponse>
 }

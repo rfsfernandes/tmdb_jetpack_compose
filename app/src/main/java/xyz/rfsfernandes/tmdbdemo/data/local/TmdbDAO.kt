@@ -33,8 +33,8 @@ interface TmdbDAO {
     @Query("SELECT * FROM MovieEntity WHERE language = :language AND homeType LIKE '%' || :homeType || '%'")
     fun getMoviesPaged(language: String, homeType: String): PagingSource<Int, MovieEntity>
 
-    @Query("SELECT * FROM MovieEntity WHERE movieId = :movieId")
-    suspend fun getMovie(movieId: Int): List<MovieEntity>
+    @Query("SELECT * FROM MovieEntity WHERE homeType LIKE '%' || :homeType || '%' ORDER BY random() LIMIT 5")
+    fun getFeaturedMovies(homeType: String): PagingSource<Int, MovieEntity>
 
     @Query("SELECT * FROM MovieEntity WHERE language = :language AND homeType = :homeType")
     suspend fun getAllMovies(language: String, homeType: String): List<MovieEntity>

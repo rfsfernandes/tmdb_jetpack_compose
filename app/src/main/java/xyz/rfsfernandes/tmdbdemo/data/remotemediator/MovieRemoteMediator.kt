@@ -65,34 +65,54 @@ class MovieRemoteMediator(
                 MovieHomeType.POPULAR -> tmdbService.getPopularMovies(language, page)
                 MovieHomeType.TOP_RATED -> tmdbService.getTopRatedMovies(language, page)
                 MovieHomeType.UPCOMING -> tmdbService.getUpcomingMovies(language, page)
+                MovieHomeType.FEATURED -> tmdbService.getFeaturedMovies(language)
             }
 
             if (response.isSuccessful) {
                 val movies = response.body()?.results ?: emptyList()
-                val endOfPagination = movies.isEmpty() || response.body()?.totalPages == page || movies.size < state.config.pageSize
-                appDatabase.withTransaction {
-                    if (loadType == LoadType.REFRESH) {
-                        tmdbDAO.deleteMovies(type.name, language)
-                        tmdbDAO.clearRemoteKeysFromType(language, type.name)
+                when(type) {
+                    MovieHomeType.FEATURED -> {
+                        appDatabase.withTransaction {
+                            if (loadType == LoadType.REFRESH) {
+                                tmdbDAO.deleteMovies(type.name, language)
+                            }
+
+                            Log.d("MovieRemoteMediator", "Featured movies: $movies")
+
+                            val movieEntities = movies.map { it.toMovieEntity(language, type) }
+
+                            tmdbDAO.insertMovies(movieEntities)
+                            MediatorResult.Success(endOfPaginationReached = true)
+                        }
                     }
+                    else -> {
+                        val endOfPagination = movies.isEmpty() || response.body()?.totalPages == page || movies.size < state.config.pageSize
+                        appDatabase.withTransaction {
+                            if (loadType == LoadType.REFRESH) {
+                                tmdbDAO.deleteMovies(type.name, language)
+                                tmdbDAO.clearRemoteKeysFromType(language, type.name)
+                            }
 
-                    val keys = movies.map { movie ->
-                        MovieRemoteKey(
-                            movieId = movie.id,
-                            prevKey = if (page == 1) null else page - 1,
-                            nextKey = if (endOfPagination) null else page + 1,
-                            language = language,
-                            homeType = type,
-                        )
+                            val keys = movies.map { movie ->
+                                MovieRemoteKey(
+                                    movieId = movie.id,
+                                    prevKey = if (page == 1) null else page - 1,
+                                    nextKey = if (endOfPagination) null else page + 1,
+                                    language = language,
+                                    homeType = type,
+                                )
+                            }
+                            Log.d("MovieRemoteMediator", "Page: $page, NextKey: ${keys.firstOrNull()?.nextKey}")
+
+                            val movieEntities = movies.map { it.toMovieEntity(language, type) }
+
+                            tmdbDAO.insertAllKeys(keys)
+                            tmdbDAO.insertMovies(movieEntities)
+                            MediatorResult.Success(endOfPaginationReached = endOfPagination)
+                        }
                     }
-                    Log.d("MovieRemoteMediator", "Page: $page, NextKey: ${keys.firstOrNull()?.nextKey}")
-
-                    val movieEntities = movies.map { it.toMovieEntity(language, type) }
-
-                    tmdbDAO.insertAllKeys(keys)
-                    tmdbDAO.insertMovies(movieEntities)
-                    MediatorResult.Success(endOfPaginationReached = endOfPagination)
                 }
+
             } else {
                 MediatorResult.Error(HttpException(response))
             }

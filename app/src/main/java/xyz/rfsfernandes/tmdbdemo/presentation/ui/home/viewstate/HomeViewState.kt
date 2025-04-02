@@ -14,6 +14,6 @@ data class HomeViewState(
     val nowPlayingMovies: Flow<PagingData<MovieDataModel>>? = emptyFlow(),
     val topRatedMovies: Flow<PagingData<MovieDataModel>>? = emptyFlow(),
     val upcomingMovies: Flow<PagingData<MovieDataModel>>? = emptyFlow(),
-    val movieGenres: List<GenreDataModel>? = null,
+    val featuredMovies: Flow<PagingData<MovieDataModel>>? = emptyFlow(),
     val error: String? = null,
 )
