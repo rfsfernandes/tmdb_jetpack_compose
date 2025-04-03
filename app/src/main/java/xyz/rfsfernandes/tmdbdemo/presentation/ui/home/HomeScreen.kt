@@ -1,37 +1,34 @@
 package xyz.rfsfernandes.tmdbdemo.presentation.ui.home
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
+import androidx.annotation.StringRes
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,10 +38,12 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import xyz.rfsfernandes.tmdbdemo.data.local.model.MovieHomeType
 import xyz.rfsfernandes.tmdbdemo.domain.model.MovieDataModel
 import xyz.rfsfernandes.tmdbdemo.presentation.ui.composables.BoxVignetting
+import xyz.rfsfernandes.tmdbdemo.presentation.ui.composables.PageIndicator
 import xyz.rfsfernandes.tmdbdemo.presentation.ui.theme.DarkRed
 import xyz.rfsfernandes.tmdbdemo.presentation.ui.theme.Red
 
@@ -59,31 +58,51 @@ fun HomeScreen(
     }
     LazyColumn {
         items(MovieHomeType.entries) {
-            MovieCategorySection(it.name, vm, it)
+            HomeScreenSections(it.title, vm, it)
+            if (it.ordinal == MovieHomeType.entries.size - 1) {
+                Spacer(
+                    modifier = Modifier.height(32.dp)
+                )
+            }
         }
     }
 }
 
 @Composable
 fun FeaturedMoviesPager(movies: LazyPagingItems<MovieDataModel>?) {
-    val screenHeight = LocalContext.current.resources.displayMetrics.heightPixels / LocalContext.current.resources.displayMetrics.density
-    val cardHeight = screenHeight * 0.50f
-    movies?. let {
+    val screenHeight =
+        LocalContext.current.resources.displayMetrics.heightPixels / LocalContext.current.resources.displayMetrics.density
+    val cardHeight = screenHeight * 0.60f
+
+    movies?.let {
         val pagerState = rememberPagerState(
-            pageCount = { it.itemCount }
-        )
+            pageCount = { it.itemCount })
+
+        if (it.itemCount > 0) {
+            val pagerIsDragged by pagerState.interactionSource.collectIsDraggedAsState()
+            val pageInteractionSource = remember { MutableInteractionSource() }
+            val pageIsPressed by pageInteractionSource.collectIsPressedAsState()
+
+            // Stop auto-advancing when the pager is dragged or a page is pressed
+            val autoAdvance = !pagerIsDragged && !pageIsPressed
+
+            LaunchedEffect(autoAdvance) {
+                while (autoAdvance) {
+                    delay(4000)
+                    val nextPage = (pagerState.currentPage + 1) % it.itemCount
+                    pagerState.animateScrollToPage(nextPage)
+                }
+            }
+        }
 
         Box {
             HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
+                state = pagerState, modifier = Modifier
                     .fillMaxWidth()
                     .height(cardHeight.dp)
             ) { page ->
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.BottomCenter
+                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter
                 ) {
                     AsyncImage(
                         model = "https://image.tmdb.org/t/p/w500${it[page]?.posterPath}",
@@ -95,50 +114,24 @@ fun FeaturedMoviesPager(movies: LazyPagingItems<MovieDataModel>?) {
                 }
             }
             // Pager Indicators
-            Row(
-                Modifier
-                    .wrapContentHeight()
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 14.dp)
-                    .animateContentSize(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                repeat(pagerState.pageCount) { iteration ->
-                    when {
-                        pagerState.currentPage == iteration -> {
-                            Box(
-                                modifier = Modifier
-                                    .padding(horizontal = 4.dp, vertical = 2.dp)
-                                    .clip(CircleShape)
-                                    .background(DarkRed)
-                                    .width(24.dp)
-                                    .height(16.dp)
-                                    .animateContentSize()
-                            )
-                        }
-                        else -> {
-                            Box(
-                                modifier = Modifier
-                                    .padding(horizontal = 2.dp, vertical = 2.dp)
-                                    .clip(CircleShape)
-                                    .background(Red)
-                                    .size(16.dp)
-                                    .animateContentSize()
-                            )
-                        }
-                    }
-                }
-            }
+            PageIndicator(
+                numberOfPages = it.itemCount,
+                selectedPage = pagerState.currentPage,
+                selectedColor = Red,
+                defaultColor = DarkRed,
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 14.dp)
+            )
         }
     }
 }
 
 @Composable
-fun MovieCategorySection(title: String, vm: HomeViewModel, movieHomeType: MovieHomeType) {
-    val screenWidth = LocalContext.current.resources.displayMetrics.widthPixels / LocalContext.current.resources.displayMetrics.density
+fun HomeScreenSections(@StringRes title: Int, vm: HomeViewModel, movieHomeType: MovieHomeType) {
+    val screenWidth =
+        LocalContext.current.resources.displayMetrics.widthPixels / LocalContext.current.resources.displayMetrics.density
     val cardWidth = screenWidth * 0.65f
-    val screenHeight = LocalContext.current.resources.displayMetrics.heightPixels / LocalContext.current.resources.displayMetrics.density
+    val screenHeight =
+        LocalContext.current.resources.displayMetrics.heightPixels / LocalContext.current.resources.displayMetrics.density
     val cardHeight = screenHeight * 0.45f
 
     val viewState = vm.viewState.collectAsState().value
@@ -154,36 +147,52 @@ fun MovieCategorySection(title: String, vm: HomeViewModel, movieHomeType: MovieH
         MovieHomeType.FEATURED -> {
             FeaturedMoviesPager(movies)
         }
-        else -> {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 4.dp)
+        MovieHomeType.NOW_PLAYING -> {
+            Spacer(
+                Modifier.height(12.dp)
             )
+            MovieCategorySection(title, movies, movieHomeType, cardWidth, cardHeight)
+        }
+        else -> {
+            MovieCategorySection(title, movies, movieHomeType, cardWidth, cardHeight)
+        }
+    }
+}
 
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                movies?.let { movies ->
-                    items(
-                        count = movies.itemCount,
-                        key = movies.itemKey { it.movieId },
-                        contentType = movies.itemContentType { movieHomeType.name }
-                    ) { index ->
-                        val movie = movies[index]
-                        movie?.let { MovieItem(it, cardWidth, cardHeight) }
-                    }
+@Composable
+fun MovieCategorySection(@StringRes title: Int, movies: LazyPagingItems<MovieDataModel>?, movieHomeType: MovieHomeType, cardWidth: Float, cardHeight: Float) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Spacer(
+            Modifier.height(12.dp)
+        )
+        Text(
+            text = LocalContext.current.getString(title),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(start = 20.dp)
+        )
+        Spacer(
+            Modifier.height(6.dp)
+        )
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            movies?.let { movies ->
+                items(
+                    count = movies.itemCount,
+                    key = movies.itemKey { it.movieId },
+                    contentType = movies.itemContentType { movieHomeType.name }) { index ->
+                    val movie = movies[index]
+                    movie?.let { MovieItem(it, cardWidth, cardHeight) }
                 }
             }
         }
-        }
+        Spacer(
+            Modifier.height(6.dp)
+        )
     }
-
 }
 
 @Composable
@@ -195,8 +204,7 @@ fun MovieItem(movie: MovieDataModel, cardWidth: Float = 150f, cardHeight: Float 
             .padding(8.dp)
     ) {
         Card(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             shape = MaterialTheme.shapes.medium,
         ) {
             AsyncImage(
@@ -206,7 +214,7 @@ fun MovieItem(movie: MovieDataModel, cardWidth: Float = 150f, cardHeight: Float 
                 modifier = Modifier.fillMaxSize()
             )
         }
-        BoxVignetting(cardHeight)
+        BoxVignetting(cardHeight, true)
     }
 }
 

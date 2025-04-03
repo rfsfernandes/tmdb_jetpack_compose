@@ -7,15 +7,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun BoxVignetting(boxHeight: Float) {
+fun BoxVignetting(
+    boxHeight: Float,
+    roundedCorners:Boolean = false
+) {
     Box(
         modifier = Modifier
             .fillMaxSize(),
@@ -26,6 +32,7 @@ fun BoxVignetting(boxHeight: Float) {
                 .fillMaxWidth()
                 .height((boxHeight * 0.4f).dp)
                 .align(Alignment.BottomCenter)
+                .clip(if (roundedCorners) MaterialTheme.shapes.medium else RectangleShape)
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
@@ -40,6 +47,7 @@ fun BoxVignetting(boxHeight: Float) {
                 .fillMaxWidth()
                 .height((boxHeight * 0.4f).dp)
                 .align(Alignment.TopCenter)
+                .clip(if (roundedCorners) MaterialTheme.shapes.medium else RectangleShape)
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
@@ -54,6 +62,7 @@ fun BoxVignetting(boxHeight: Float) {
                 .fillMaxHeight()
                 .width((boxHeight * 0.4f).dp)
                 .align(Alignment.CenterStart)
+                .clip(if (roundedCorners) MaterialTheme.shapes.medium else RectangleShape)
                 .background(
                     brush = Brush.horizontalGradient(
                         colors = listOf(
@@ -68,6 +77,7 @@ fun BoxVignetting(boxHeight: Float) {
                 .fillMaxHeight()
                 .width((boxHeight * 0.4f).dp)
                 .align(Alignment.CenterEnd)
+                .clip(if (roundedCorners) MaterialTheme.shapes.medium else RectangleShape)
                 .background(
                     brush = Brush.horizontalGradient(
                         colors = listOf(
