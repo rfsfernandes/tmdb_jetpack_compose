@@ -9,6 +9,7 @@ import xyz.rfsfernandes.tmdbdemo.data.local.model.CacheTimeEntity
 import xyz.rfsfernandes.tmdbdemo.data.local.model.GenreEntity
 import xyz.rfsfernandes.tmdbdemo.data.local.model.MovieEntity
 import xyz.rfsfernandes.tmdbdemo.data.local.model.MovieRemoteKey
+import xyz.rfsfernandes.tmdbdemo.data.local.model.moviedetails.MovieDetailsEntity
 
 @Dao
 interface TmdbDAO {
@@ -62,4 +63,13 @@ interface TmdbDAO {
     @Query("DELETE FROM CacheTimeEntity WHERE language = :language")
     suspend fun deleteCacheTime(language: String)
 
+    // MovieDetails
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMovieDetails(movieDetails: MovieDetailsEntity)
+
+    @Query("SELECT * FROM MovieDetailsEntity WHERE id = :id AND language = :language")
+    suspend fun getMovieDetails(id: Int, language: String): MovieDetailsEntity?
+
+    @Query("DELETE FROM MovieDetailsEntity WHERE id = :id AND language = :language")
+    suspend fun deleteMovieDetails(id: Int, language: String)
 }

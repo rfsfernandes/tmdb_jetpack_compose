@@ -7,9 +7,10 @@ import xyz.rfsfernandes.tmdbdemo.data.local.model.CacheTimeEntity
 import xyz.rfsfernandes.tmdbdemo.data.local.model.GenreEntity
 import xyz.rfsfernandes.tmdbdemo.data.local.model.MovieEntity
 import xyz.rfsfernandes.tmdbdemo.data.local.model.MovieRemoteKey
+import xyz.rfsfernandes.tmdbdemo.data.local.model.moviedetails.MovieDetailsEntity
 
 @Database(
-    entities = [MovieEntity::class, GenreEntity::class, MovieRemoteKey::class, CacheTimeEntity::class],
+    entities = [MovieEntity::class, GenreEntity::class, MovieRemoteKey::class, CacheTimeEntity::class, MovieDetailsEntity::class],
     version = 1
 )
 @TypeConverters(MoviesTypeConverters::class)

@@ -5,4 +5,7 @@
     <string name="popular">Popular</string>
     <string name="top_rated">Top Rated</string>
     <string name="upcoming">Upcoming</string>
+    <string name="collection">Part of:</string>
+    <string name="languages">Languages:</string>
+    <string name="production_of">A production of:</string>
 </resources>

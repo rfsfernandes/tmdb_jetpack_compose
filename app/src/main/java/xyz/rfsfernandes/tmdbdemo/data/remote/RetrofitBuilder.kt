@@ -15,7 +15,8 @@ class RetrofitBuilder(
     private val context: Context,
     baseUrl: String,
     moshi: Moshi,
-    private val networkManager: NetworkManager) {
+    private val networkManager: NetworkManager
+) {
 
     private fun provideCache(): Cache {
         val cacheSize = 10 * 1024 * 1024L // 10 MB

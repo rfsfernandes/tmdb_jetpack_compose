@@ -10,22 +10,28 @@ import androidx.lifecycle.LiveData
 
 class NetworkManager(context: Context) : LiveData<Boolean>() {
 
-    companion object NM {
+    companion object {
         private const val TAG = "NetworkManager"
     }
 
     private val connectivityManager =
-        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
-            Log.i(TAG, "onAvailable: $network")
+            Log.i(TAG, "Network available: $network")
             postValue(true)
         }
 
         override fun onLost(network: Network) {
-            Log.i(TAG, "onLost: $network")
+            Log.i(TAG, "Network lost: $network")
             postValue(false)
+        }
+
+        override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+            Log.i(TAG, "Capabilities changed: $networkCapabilities")
+            val isConnected = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            postValue(isConnected)
         }
     }
 
@@ -34,9 +40,10 @@ class NetworkManager(context: Context) : LiveData<Boolean>() {
         // Register the network callback
         val networkRequest = NetworkRequest.Builder()
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) // More reliable check
             .build()
         connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
-        // Check initial network status
+        // Initial check for network connectivity
         postValue(isConnected())
     }
 
@@ -48,7 +55,8 @@ class NetworkManager(context: Context) : LiveData<Boolean>() {
 
     private fun isConnected(): Boolean {
         val activeNetwork = connectivityManager.activeNetwork ?: return false
-        val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
-        return networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) // Ensures actual internet access
     }
 }

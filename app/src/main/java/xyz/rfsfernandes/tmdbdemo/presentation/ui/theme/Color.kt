@@ -28,3 +28,5 @@ val LightPrimary = Color(0xFFE50914)
 val LightSecondary = Color(0xFFB81D24)
 val LightText = Color(0xFF000000)
 val LightTextGray = Color(0xFF555555)
+
+val Tertiary = Color(0xFFF5C518)

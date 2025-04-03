@@ -1,4 +1,4 @@
-package xyz.rfsfernandes.tmdbdemo.data.local.model
+package xyz.rfsfernandes.tmdbdemo.domain
 
 import androidx.annotation.StringRes
 import xyz.rfsfernandes.tmdbdemo.R

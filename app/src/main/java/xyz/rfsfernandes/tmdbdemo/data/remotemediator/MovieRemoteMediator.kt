@@ -10,10 +10,10 @@ import retrofit2.HttpException
 import xyz.rfsfernandes.tmdbdemo.data.local.AppDatabase
 import xyz.rfsfernandes.tmdbdemo.data.local.TmdbDAO
 import xyz.rfsfernandes.tmdbdemo.data.local.model.MovieEntity
-import xyz.rfsfernandes.tmdbdemo.data.local.model.MovieHomeType
 import xyz.rfsfernandes.tmdbdemo.data.local.model.MovieRemoteKey
 import xyz.rfsfernandes.tmdbdemo.data.mappers.toMovieEntity
 import xyz.rfsfernandes.tmdbdemo.data.remote.TmdbService
+import xyz.rfsfernandes.tmdbdemo.domain.MovieHomeType
 
 @OptIn(ExperimentalPagingApi::class)
 class MovieRemoteMediator(
@@ -41,17 +41,19 @@ class MovieRemoteMediator(
                         return MediatorResult.Success(endOfPaginationReached = true)
                     }
                     val lastMovie = moviesInDb.last()
-                    val remoteKey = tmdbDAO.getRemoteKeyByMovieId(lastMovie.movieId, language, type.name)
-                        ?: return MediatorResult.Error(
-                            IllegalStateException("No remote key found for movie ${lastMovie.movieId}")
-                        )
+                    val remoteKey =
+                        tmdbDAO.getRemoteKeyByMovieId(lastMovie.movieId, language, type.name)
+                            ?: return MediatorResult.Error(
+                                IllegalStateException("No remote key found for movie ${lastMovie.movieId}")
+                            )
                     remoteKey.nextKey
                         ?: return MediatorResult.Success(endOfPaginationReached = true)
                 } else {
-                    val remoteKey = tmdbDAO.getRemoteKeyByMovieId(lastItem.movieId, language, type.name)
-                        ?: return MediatorResult.Error(
-                            IllegalStateException("No remote key found for movie ${lastItem.movieId}")
-                        )
+                    val remoteKey =
+                        tmdbDAO.getRemoteKeyByMovieId(lastItem.movieId, language, type.name)
+                            ?: return MediatorResult.Error(
+                                IllegalStateException("No remote key found for movie ${lastItem.movieId}")
+                            )
                     remoteKey.nextKey
                         ?: return MediatorResult.Success(endOfPaginationReached = true)
                 }
@@ -70,7 +72,7 @@ class MovieRemoteMediator(
 
             if (response.isSuccessful) {
                 val movies = response.body()?.results ?: emptyList()
-                when(type) {
+                when (type) {
                     MovieHomeType.FEATURED -> {
                         appDatabase.withTransaction {
                             if (loadType == LoadType.REFRESH) {
@@ -85,8 +87,10 @@ class MovieRemoteMediator(
                             MediatorResult.Success(endOfPaginationReached = true)
                         }
                     }
+
                     else -> {
-                        val endOfPagination = movies.isEmpty() || response.body()?.totalPages == page || movies.size < state.config.pageSize
+                        val endOfPagination =
+                            movies.isEmpty() || response.body()?.totalPages == page || movies.size < state.config.pageSize
                         appDatabase.withTransaction {
                             if (loadType == LoadType.REFRESH) {
                                 tmdbDAO.deleteMovies(type.name, language)
@@ -102,7 +106,10 @@ class MovieRemoteMediator(
                                     homeType = type,
                                 )
                             }
-                            Log.d("MovieRemoteMediator", "Page: $page, NextKey: ${keys.firstOrNull()?.nextKey}")
+                            Log.d(
+                                "MovieRemoteMediator",
+                                "Page: $page, NextKey: ${keys.firstOrNull()?.nextKey}"
+                            )
 
                             val movieEntities = movies.map { it.toMovieEntity(language, type) }
 

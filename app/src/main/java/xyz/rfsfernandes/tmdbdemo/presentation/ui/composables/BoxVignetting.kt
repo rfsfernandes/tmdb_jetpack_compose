@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun BoxVignetting(
     boxHeight: Float,
-    roundedCorners:Boolean = false
+    roundedCorners: Boolean = false
 ) {
     Box(
         modifier = Modifier

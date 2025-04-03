@@ -2,9 +2,11 @@ package xyz.rfsfernandes.tmdbdemo.data.remote
 
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 import xyz.rfsfernandes.tmdbdemo.data.remote.model.genre.GenreResponse
 import xyz.rfsfernandes.tmdbdemo.data.remote.model.movie.MovieResponse
+import xyz.rfsfernandes.tmdbdemo.data.remote.model.movie.details.MovieDetails
 
 interface TmdbService {
 
@@ -42,4 +44,10 @@ interface TmdbService {
     suspend fun getFeaturedMovies(
         @Query("language") language: String?,
     ): Response<MovieResponse>
+
+    @GET("movie/{movieId}")
+    suspend fun getMovieDetails(
+        @Path("movieId") movieId: Int,
+        @Query("language") language: String?,
+    ): Response<MovieDetails>
 }

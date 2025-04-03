@@ -1,0 +1,31 @@
+package xyz.rfsfernandes.tmdbdemo.domain.model
+
+data class MovieDetailsDataModel(
+    val id: Int? = null,
+    val adult: Boolean? = null,
+    val backdropPath: String? = null,
+    val belongsToCollection: MovieCollectionDataModel? = null,
+    val budget: Int? = null,
+    val genres: List<GenreDataModel> = listOf(),
+    val homepage: String? = null,
+    val imdbId: String? = null,
+    val originCountry: List<String> = listOf(),
+    val originalLanguage: String? = null,
+    val originalTitle: String? = null,
+    val overview: String? = null,
+    val popularity: Double? = null,
+    val posterPath: String? = null,
+    val productionCompanies: List<ProductionCompaniesDataModel> = listOf(),
+    val productionCountries: List<ProductionCountriesDataModel> = listOf(),
+    val releaseDate: String? = null,
+    val revenue: Int? = null,
+    val runtime: Int? = null,
+    val spokenLanguages: List<SpokenLanguagesDataModel> = listOf(),
+    val status: String? = null,
+    val tagline: String? = null,
+    val title: String? = null,
+    val video: Boolean? = null,
+    val voteAverage: Double? = null,
+    val voteCount: Int? = null,
+    val language: String
+)

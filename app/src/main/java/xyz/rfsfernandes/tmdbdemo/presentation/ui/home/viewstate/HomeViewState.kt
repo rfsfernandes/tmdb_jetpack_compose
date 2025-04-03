@@ -2,10 +2,7 @@ package xyz.rfsfernandes.tmdbdemo.presentation.ui.home.viewstate
 
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import xyz.rfsfernandes.tmdbdemo.data.local.model.MovieEntity
-import xyz.rfsfernandes.tmdbdemo.domain.model.GenreDataModel
 import xyz.rfsfernandes.tmdbdemo.domain.model.MovieDataModel
 
 data class HomeViewState(

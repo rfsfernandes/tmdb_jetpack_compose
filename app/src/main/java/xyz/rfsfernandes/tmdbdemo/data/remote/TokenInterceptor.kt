@@ -4,7 +4,7 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import xyz.rfsfernandes.tmdbdemo.BuildConfig
 
-class TokenInterceptor(): Interceptor {
+class TokenInterceptor : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()

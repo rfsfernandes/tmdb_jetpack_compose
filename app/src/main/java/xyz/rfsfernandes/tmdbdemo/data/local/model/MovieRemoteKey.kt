@@ -2,6 +2,7 @@ package xyz.rfsfernandes.tmdbdemo.data.local.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import xyz.rfsfernandes.tmdbdemo.domain.MovieHomeType
 
 @Entity
 data class MovieRemoteKey(
